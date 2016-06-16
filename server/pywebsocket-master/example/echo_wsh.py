@@ -1,0 +1,99 @@
+# Copyright 2011, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+mode = "basic" # also possible: basic, monitor, woo (wizard-of-ozz), policy
+
+def identity(stream,line):
+    print ("Identity: " + line)
+    users[line[1:]]=stream
+
+def send_to(dest_str,msg):
+    if dest_str in users:
+        dest=users[dest_str]
+        try:
+            dest.send_message(msg)
+        except:
+            pass
+    else:
+        print "Unknown user: " + dest_str
+        
+    
+
+    
+def message(stream,line):
+    src_str=line[2:line.find(">")]
+    line=line[line.find(">")+1:]
+    dest_str=line[1:line.find(">")]
+    msg=line[line.find(">")+1:]
+    print ("Message from " + src_str + " for "+dest_str+": " + msg)
+    if (src_str[:8]=="monitor_"):
+        send_to(dest_str,"M<"+src_str[8:]+">"+msg);
+    else:
+        if mode == "basic":
+            send_to(dest_str,"M<"+src_str+">"+msg);
+        elif mode == "monitor":
+            send_to("monitor_"+src_str,"M<"+dest_str+">"+msg);
+            send_to(dest_str,"M<"+src_str+">"+msg);
+        elif mode == "woo":
+            if ("monitor_"+src_str) in users:
+                send_to("monitor_"+src_str,"M<"+dest_str+">"+msg);
+            else:
+                send_to(dest_str,"M<"+src_str+">"+msg);
+        elif mode == "policy":
+            send_to("monitor_"+src_str,"M<"+dest_str+">"+msg);
+        else:
+            print "Mode unknown";
+
+            
+protocol = { 'M' : message,
+             'I' : identity}
+
+users = {}
+
+def web_socket_do_extra_handshake(request):
+    # This example handler accepts any request. See origin_check_wsh.py for how
+    # to reject access from untrusted scripts based on origin value.
+
+    pass  # Always accept.
+
+
+def web_socket_transfer_data(request):
+    while True:
+        line = request.ws_stream.receive_message()
+        if line is None:
+            return
+        if isinstance(line, unicode):
+            print ("Received: "+line +":" + line[0])
+            if (line[0] in protocol):
+                protocol[line[0]](request.ws_stream,line)
+            else :
+                print "Message not valid: "+line
+
+# vi:sts=4 sw=4 et

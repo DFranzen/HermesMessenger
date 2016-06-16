@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html style="height:100%;width:100%">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Mercury Messenger</title>
+    <style>
+      .message {
+      width:80%;
+      margin:5px 0;
+      padding:3px;
+      border-radius:3px
+      }
+      .right {
+      float:right;
+      text-align:right;
+      background-color:rgb(0,190,255);
+      }
+      .left {
+      float:left;
+      text-align:left;
+      background-color:rgb(255,190,0);
+      }
+      
+      textarea
+      {
+      border:1px solid #999999;
+      width:100%;
+      margin:5px 0;
+      padding:3px;
+      }
+
+      /* Dropdown Button */
+      .dropbtn {
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      }
+      
+      /* Dropdown button on hover & focus */
+      .dropbtn:hover, .dropbtn:focus {
+      background-color: #3e8e41;
+      }
+      
+      /* The container div - needed to position the dropdown content */
+      .dropdown {
+      position: relative;
+      display: inline-block;
+      }
+      
+      /* Dropdown Content (Hidden by Default) */
+      .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      }
+      
+      /* Links inside the dropdown */
+      .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      }
+      
+      /* Change color of dropdown links on hover */
+      .dropdown-content a:hover {background-color: #f1f1f1}
+      
+      .view {display:none;}
+      
+      /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+      .show {display:block;}
+    </style>
+
+</head>
+
+<body style="height:100%;width=100%">
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+
+  <div id="status">
+    <span id="state"> Not connected</span>
+    <span style="float:right;" id="spanDisconnect"> <button id="buttonDisconnect" style="width=20%;background-color:red;color:white;font-size:18px;display:none;" onclick="disconnect()">Disconnect</button></span>
+  </div>
+
+  
+  <div id="connection" style="width:100%;height:50%;" class="view">
+    <div style="height:25%;">
+    </div>
+    IP: <input id="ipaddr" style="width:100% font-size:14px;" type="text" value="172.20.154.121:9998">
+    <div class="dropdown" style="width:100%">
+      Name: <input id="name" class="dropbtn" style="width:100%;" type="text" value="Alice" onfocus="show_dropdown()">
+      <center>
+	<div id="dropdownNames" class="dropdown-content">
+	  <a href="#" onclick="set_dropdown('Alice')">Alice</a>
+	  <a href="#" onclick="set_dropdown('Bob')">Bob</a>
+	  <a href="#" onclick="set_dropdown('Monitor_Alice')">Monitor_Alice</a>
+	</div>
+      </center>
+    </div>
+    <button id="buttonConnect" style="width:100%;background-color:green;height:10%;color:white;font-size:20px" onclick="connect()">Connect</button>
+  </div>
+
+  
+  <div id="messaging" style="height:100%;" class="view">
+    <div id="messages" style="width:100%;height:40%;overflow:auto;">
+      
+    </div>
+    <textarea id="msgText" rows="4" style="height:30%;">
+      
+    </textarea>
+    <button id="buttonSend" style="width:100%;background-color:green;height:10%;color:white;font-size:20px" onclick="sendthis()">Send</button>
+  </div>
+</body>
+</html>
